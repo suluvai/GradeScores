@@ -17,40 +17,44 @@ namespace GradeScores.Test
     {
         private static string sThisExecutableDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-        public class TestData1
-        {           
-            public static string inputFilePath              = Path.GetFullPath(Path.Combine(sThisExecutableDirectory, "../../TestFile1.txt"));
-            public static string outputFilePathExpected     = Path.GetFullPath(Path.Combine(sThisExecutableDirectory, "../../ExpectedTestFile1.txt"));
-            public static string outputFilePathActual       = Path.GetFullPath(Path.Combine(sThisExecutableDirectory, "../../TestFile1-graded.txt"));
+        public class TestData
+        {            
+            public string sInputFile { get; }
+            public string sExpectedOutputFile { get; }            
+            public string sActualOutputFilePath { get; }
 
-            public static SortedDictionary<TupleKey, string> ExpectedDictionaryData()
+            public TestData(string sInputFileRelativePath, string sExpectedOutputFileRelativePath, string sActualOutputFileRelativePath)
             {
-                SortedDictionary<TupleKey, string> expectedData = new SortedDictionary<TupleKey, string>();
-
-                expectedData.Add(new TupleKey(88, " TERESSA", "BUNDY"), "BUNDY, TERESSA, 88");
-                expectedData.Add(new TupleKey(70, " ALLAN", "SMITH"), "SMITH, ALLAN, 70");
-                expectedData.Add(new TupleKey(88, " MADISON", "KING"), "KING, MADISON, 88");
-                expectedData.Add(new TupleKey(85, " FRANCIS", "SMITH"), "SMITH, FRANCIS, 85");
-
-                return expectedData;
+                sInputFile          = GetFullPath(sInputFileRelativePath);
+                sExpectedOutputFile = GetFullPath(sExpectedOutputFileRelativePath);
+                sActualOutputFilePath   = GetFullPath(sActualOutputFileRelativePath);
             }
 
-            public static string[] ExpectedSortedData()
+            private string GetFullPath(string sRelativePath)
             {
-                string[] expectedSortedData = new string[4];
-                expectedSortedData[0] = "BUNDY, TERESSA, 88";
-                expectedSortedData[1] = "KING, MADISON, 88";
-                expectedSortedData[2] = "SMITH, FRANCIS, 85";
-                expectedSortedData[3] = "SMITH, ALLAN, 70";
-                return expectedSortedData;
+               return Path.GetFullPath(Path.Combine(sThisExecutableDirectory, sRelativePath));
             }
         }
 
+        TestData sampleData1 = new TestData("../../TestFile1.txt", "../../ExpectedTestFile1.txt", "../../TestFile1-graded.txt");
+        TestData sampleData2 = new TestData("../../TestFile2.txt", "../../ExpectedTestFile2.txt", "../../TestFile2-graded.txt");
+
         [TestCase]
-        public void TestReadingDataIntoSortedDictionary()
+        public void TestFunctionalityWithSampleData1()
         {
-            Assert.AreEqual(ExitCodes.SUCCESS, Grades.SortByGrades(TestData1.inputFilePath));
-            FileAssert.AreEqual(new FileInfo(TestData1.outputFilePathExpected), new FileInfo(TestData1.outputFilePathActual));
+            string sOutputFile;
+            // Test case 1
+            Assert.AreEqual(ResultCodes.SUCCESS, Grades.SortByGrades(sampleData1.sInputFile, out sOutputFile));
+            FileAssert.AreEqual(new FileInfo(sampleData1.sExpectedOutputFile), new FileInfo(sOutputFile));
+        }
+        
+        [TestCase]
+        public void TestFunctionalityWithSampleData2()
+        {
+            string sOutputFile;
+            // Test case 2
+            Assert.AreEqual(ResultCodes.SUCCESS, Grades.SortByGrades(sampleData2.sInputFile, out sOutputFile));
+            FileAssert.AreEqual(new FileInfo(sampleData2.sExpectedOutputFile), new FileInfo(sOutputFile));
         }
     }
 }
