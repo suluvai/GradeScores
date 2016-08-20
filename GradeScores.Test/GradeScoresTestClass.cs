@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace GradeScores.Test
 {
@@ -45,7 +46,7 @@ namespace GradeScores.Test
             string sOutputFile;
             // Test case 1
             Assert.AreEqual(ResultCodes.SUCCESS, Grades.SortByGrades(sampleData1.sInputFile, out sOutputFile));
-            FileAssert.AreEqual(new FileInfo(sampleData1.sExpectedOutputFile), new FileInfo(sOutputFile));
+            CollectionAssert.AreEqual(GetChecksum(sampleData1.sExpectedOutputFile), GetChecksum(sOutputFile));
         }
         
         [TestCase]
@@ -54,7 +55,14 @@ namespace GradeScores.Test
             string sOutputFile;
             // Test case 2
             Assert.AreEqual(ResultCodes.SUCCESS, Grades.SortByGrades(sampleData2.sInputFile, out sOutputFile));
-            FileAssert.AreEqual(new FileInfo(sampleData2.sExpectedOutputFile), new FileInfo(sOutputFile));
+            CollectionAssert.AreEqual(GetChecksum(sampleData2.sExpectedOutputFile), GetChecksum(sOutputFile));
         }
+
+        private static byte[] GetChecksum(string sFileName)
+        {
+            var md5 = MD5.Create();
+            return md5.ComputeHash(File.OpenRead(sFileName));            
+        }
+        
     }
 }
