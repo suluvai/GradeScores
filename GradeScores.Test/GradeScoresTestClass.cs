@@ -11,8 +11,6 @@ namespace GradeScores.Test
     using NUnit.Framework;
     using TransMaxTest;
 
-    using TupleKey = Tuple<uint, string, string>;
-
     [TestFixture]
     public class GradesScoresTestClass
     {
@@ -46,7 +44,9 @@ namespace GradeScores.Test
             string sOutputFile;
             // Test case 1
             Assert.AreEqual(ResultCodes.SUCCESS, Grades.SortByGrades(sampleData1.sInputFile, out sOutputFile));
-            CollectionAssert.AreEqual(GetChecksum(sampleData1.sExpectedOutputFile), GetChecksum(sOutputFile));
+            string Expected = GetChecksum(sampleData1.sExpectedOutputFile);
+            string Actual = GetChecksum(sOutputFile);
+            CollectionAssert.AreEqual(Expected, Actual);
         }
         
         [TestCase]
@@ -55,13 +55,17 @@ namespace GradeScores.Test
             string sOutputFile;
             // Test case 2
             Assert.AreEqual(ResultCodes.SUCCESS, Grades.SortByGrades(sampleData2.sInputFile, out sOutputFile));
-            CollectionAssert.AreEqual(GetChecksum(sampleData2.sExpectedOutputFile), GetChecksum(sOutputFile));
+            string Expected = GetChecksum(sampleData2.sExpectedOutputFile);
+            string Actual = GetChecksum(sOutputFile);
+            CollectionAssert.AreEqual(Expected, Actual);
+            //CollectionAssert.AreEqual(GetChecksum(sampleData2.sExpectedOutputFile), GetChecksum(sOutputFile));
         }
 
-        private static byte[] GetChecksum(string sFileName)
+        private static string GetChecksum(string sFileName)
         {
-            var md5 = MD5.Create();
-            return md5.ComputeHash(File.OpenRead(sFileName));            
+            SHA256 sha256 = SHA256.Create();
+            byte[] hash = sha256.ComputeHash(File.OpenRead(sFileName));
+            return BitConverter.ToString(hash).Replace("-", String.Empty);
         }
         
     }
